@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "bin": "index.js",
   "scripts": {
     "dev": "node index.js",
-    "cli-install": "npm i -g",
+    "cli-install": "npm i -g --force",
     "cli-remove": "npm remove -g"
   },
   "keywords": [],
