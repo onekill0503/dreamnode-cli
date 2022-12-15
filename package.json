@@ -18,7 +18,6 @@
     "chalk": "^5.2.0",
     "dotenv": "^16.0.3",
     "inquirer": "^8.0.0",
-    "nanospinner": "^1.1.0",
-    "open-term": "^2.0.4"
+    "nanospinner": "^1.1.0"
   }
 }

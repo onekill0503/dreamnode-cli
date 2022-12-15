@@ -7,7 +7,6 @@ import axios from 'axios'
 // load some utils function
 import { findDataBasedOnValue , checkDocker , isInstalled, cmdSync } from "./utils/index.js"
 import { install , Uninstall } from './utils/action.js'
-import { VTexec } from 'open-term'
 
 // load enviroment
 config();
@@ -15,6 +14,18 @@ config();
 // function for initialization
 const __init__ = async () => {
     
+}
+
+const __terminal__ = async (node) => {
+    while(true){
+        const cmd = await inquirer.prompt({
+            type: "input",
+            name: "cmd",
+            message: `> `
+        })
+        const output = await cmdSync(`docker` , ['exec' , '-it' , node?.container , ...cmd?.cmd.split(" ").map(v=> v)])
+        console.log(output);
+    }
 }
 
 const __start__ = async (params) => {
@@ -66,11 +77,7 @@ const __start__ = async (params) => {
             await Uninstall(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , uninstallSpinner);
             break;
         case 'Open Terminal':
-            try{
-                VTexec(`docker exec -it ${nodeData?.container} bash`)
-            }catch(err){
-                console.log(err.message)
-            }
+            await __terminal__(nodeData);
             break;
         default:
             process.exit(1)

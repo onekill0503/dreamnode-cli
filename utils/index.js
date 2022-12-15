@@ -34,11 +34,18 @@ export const cmd = async (command) => {
 }
 
 export const checkDocker = async (spinner) => {
-    const [ output , err] = await cmdSync('which' , ['docker']);
-    if(err || output == ''){
+    let output , err;
+    if(process.platform == 'win32'){
+        [ output , err] = await cmdSync('docker');
+        err = (err.includes(`is not recognized as an internal or external command`) || err.includes(`command not found`)) ? true : false
+    }else{
+        [ output , err] = await cmdSync('which' , ['docker']);
+        err = (output == '')
+    }
+    if(err){
         spinner.update({text: chalk.red("You don't have docker on your machine")})
         spinner.error();
-        process.exit(1)
+        process.exit(1);
     }
     spinner.update({text: chalk.green("We found docker !")})
     spinner.success();
@@ -46,6 +53,11 @@ export const checkDocker = async (spinner) => {
 }
 
 export const isInstalled = async (node) => {
-    const [output , stderr , error] = await cmdSync('docker' , ['container' , 'list' , '|' , 'grep' , node?.container]);
+    let output , stderr,error;
+    if(process.platform == 'win32'){
+        [output , stderr , error] = await cmdSync('docker' , ['container' , 'list' , '|' , 'findstr' , node?.container]);
+    }else{
+        [output , stderr , error] = await cmdSync('docker' , ['container' , 'list' , '|' , 'grep' , node?.container]);
+    }
     return output ? true : false;
 }
