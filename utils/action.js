@@ -1,7 +1,7 @@
 import axios from 'axios'
 import chalk from 'chalk';
 import fs from 'fs'
-import { cmd , cmdSync } from './index.js';
+import { cmdSync } from './index.js';
 import path from 'path';
 import { isInstalled } from './index.js';
 
@@ -9,11 +9,16 @@ const createDockerFile = async (data) => {
     return await axios.get(data?.dockerfile)
         .then(async (res) => {
             let dockerFile = res.data;
+            let pathResolved = "";
             // replace some dynamic data
-            dockerFile = dockerFile.toString().replace("[chain]" , data?.chain);
-            dockerFile = dockerFile.toString().replace("[nodename]" , data?.nodename);
-            dockerFile = dockerFile.toString().replace("[wallet]" , data?.wallet);
-            let pathResolved = path.resolve(path.join(process.cwd() , 'Dockerfile'))
+            if(data?.node_type == 'cosmos'){
+                dockerFile = dockerFile.toString().replace("[chain]" , data?.chain);
+                dockerFile = dockerFile.toString().replace("[nodename]" , data?.nodename);
+                dockerFile = dockerFile.toString().replace("[wallet]" , data?.wallet);
+                pathResolved = path.resolve(path.join(process.cwd() , 'Dockerfile'));
+            }else {
+                return false;
+            }
             await fs.writeFileSync(pathResolved , dockerFile);
             return true;
         })
@@ -23,13 +28,13 @@ const createDockerFile = async (data) => {
 }
 
 const createDockerImage = async (image) => {
-    const [output , stderr , error] = await cmdSync('docker' , ["build" , `-t` , ` ${image}` , `.` ])
+    const [output , stderr , error] = await cmdSync('docker' , ["build" , `-t` , ` ${image}` , `.` ]);
     if(error) return false;
     return true;
 }
 
 const createDockerContainer = async (image , container , port) => {
-    const [output , stderr , error] = await cmdSync('docker' , ["container" , "run" , `-it` , '-d' , '-p' , `${port}` , '--name' , `${container}` , `${image}` ])
+    const [output , stderr , error] = await cmdSync('docker' , ["container" , "run" , `-it` , '-d' , '-p' , `${port}:26657` , '--name' , `${container}` , `${image}` ]);
     if(error) return false;
     return true;
 }
@@ -69,7 +74,7 @@ export const install = async (data , spinner) => {
         const createImage = await createDockerImage(data?.image, data?.name)
         if(!createImage) throw new Error("Failed to create docker image");
         // create docker container
-        const createContainer = await createDockerContainer(data?.image, data?.container . data?.port)
+        const createContainer = await createDockerContainer(data?.image, data?.container , data?.rpc)
         if(!createContainer) throw new Error("Failed to create docker container");
         // remove dockerFile
         await fs.unlinkSync(path.resolve(path.join(process.cwd() , 'Dockerfile')))

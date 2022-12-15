@@ -6,8 +6,7 @@ import { createSpinner } from 'nanospinner'
 import axios from 'axios'
 // load some utils function
 import { findDataBasedOnValue , checkDocker , isInstalled, cmdSync } from "./utils/index.js"
-import action from './utils/action.js'
-const { Uninstall , install } = new action();
+import { Uninstall , install } from './utils/action.js'
 
 // load enviroment
 config();
@@ -47,7 +46,6 @@ const __start__ = async (params) => {
         })
     
     if(menus.length < 1) return;
-
     const nodeAnswer = await inquirer.prompt({
         type: "list",
         name: "node",
@@ -94,12 +92,11 @@ const __start__ = async (params) => {
             const cmd = await inquirer.prompt(nodeQuestions);
             let data = findDataBasedOnValue(menus , 'name' ,nodeAnswer.node);
             data = {...data,...cmd}
-            
             const installSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
             await install( data, installSpinner);
             break;
         case 'Uninstall':
-            const uninstallSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
+            const uninstallSpinner = createSpinner(`${chalk.yellow("Uninstalling node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
             await Uninstall(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , uninstallSpinner);
             break;
         case 'Open Terminal':
