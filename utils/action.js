@@ -2,6 +2,7 @@ import axios from 'axios'
 import chalk from 'chalk';
 import fs from 'fs'
 import { cmd , cmdSync } from './index.js';
+import path from 'path';
 
 const createDockerFile = async (dockerFileUrl , name) => {
     return await axios.get(dockerFileUrl)
@@ -11,7 +12,8 @@ const createDockerFile = async (dockerFileUrl , name) => {
             dockerFile = dockerFile.toString().replace("[chain]" , "mainnet");
             dockerFile = dockerFile.toString().replace("[nodename]" , "alwaysbedrean");
             dockerFile = dockerFile.toString().replace("[wallet]" , "wallet");
-            await fs.writeFileSync(`${process.cwd()}\\Dockerfile` , dockerFile);
+            let pathResolved = path.resolve(path.join(process.cwd() , 'Dockerfile'))
+            await fs.writeFileSync(pathResolved , dockerFile);
             return true;
         })
         .catch(err => {
