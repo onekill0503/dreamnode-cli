@@ -20,7 +20,7 @@ const __init__ = async () => {
 const __start__ = async (params) => {
     // check if user already install docker
     const spinnerGetDocker = createSpinner(chalk.yellow("Checking docker on your machine")).start();
-    if(!checkDocker(spinnerGetDocker)) return;
+    if(!checkDocker(spinnerGetDocker)) process.exit(1);
     const spinnerGetManifest = createSpinner(chalk.yellow("Getting manifest data ...")).start();
     const menus = await axios.get("https://raw.githubusercontent.com/onekill0503/dreamnode/main/manifest.json")
         .then(res => {

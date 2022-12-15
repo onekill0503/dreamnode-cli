@@ -35,7 +35,7 @@ export const cmd = async (command) => {
 
 export const checkDocker = async (spinner) => {
     const [ output , err] = await cmdSync('which' , ['docker']);
-    if(err){
+    if(err || output == ''){
         spinner.update({text: chalk.red("You don't have docker on your machine")})
         spinner.error();
         return false;
