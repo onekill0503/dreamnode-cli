@@ -71,7 +71,7 @@ export const install = async (data , spinner) => {
         const createContainer = await createDockerContainer(data?.image, data?.container)
         if(!createContainer) throw new Error("Failed to create docker container");
         // remove dockerFile
-        await fs.unlinkSync(`${process.cwd()}\\Dockerfile`)
+        await fs.unlinkSync(path.resolve(path.join(process.cwd() , 'Dockerfile')))
         spinner.update({text: chalk.green(`Success installing node !`)})
         spinner.success();
     }catch(error){
