@@ -45,11 +45,11 @@ export const Uninstall = async (data , spinner) => {
         if(!removeContainer){
             throw new Error('Failed to remove container');
         }
-        // // remove image
-        // const removeImage = await cmdSync('docker' , ['image' , 'rm' , data?.image]);
-        // if(!removeImage){
-        //     throw new Error('Failed to remove image');
-        // }
+        // remove image
+        const removeImage = await cmdSync('docker' , ['image' , 'rm' , data?.image]);
+        if(!removeImage){
+            throw new Error('Failed to remove image');
+        }
         spinner.update({text: chalk.green(`Success Uninstalling node !`)})
         spinner.success();
     } catch (error) {

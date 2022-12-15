@@ -24,8 +24,8 @@ const __terminal__ = async (node) => {
             message: `> `
         })
         const [output , stderr , err] = await cmdSync(`docker` , ['exec' , '-i' , node?.container , ...cmd?.cmd.split(" ").map(v=> v)])
-        console.log(`Output : ${output}`);
-        console.log(`Error : ${stderr}`);
+        console.log(`Output :\n ${output}`);
+        console.log(`Error :\n ${stderr}`);
     }
 }
 
