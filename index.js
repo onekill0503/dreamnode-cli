@@ -5,8 +5,9 @@ import inquirer from 'inquirer'
 import { createSpinner } from 'nanospinner'
 import axios from 'axios'
 // load some utils function
-import { findDataBasedOnValue , checkDocker } from "./utils/index.js"
-import { install } from './utils/install.js'
+import { findDataBasedOnValue , checkDocker , isInstalled, cmdSync } from "./utils/index.js"
+import { install , Uninstall } from './utils/action.js'
+import { VTexec } from 'open-term'
 
 // load enviroment
 config();
@@ -38,11 +39,44 @@ const __start__ = async (params) => {
     const nodeAnswer = await inquirer.prompt({
         type: "list",
         name: "node",
-        message: "Which node you want to install ?",
+        message: "Please select the node ?",
         choices: [...menus.map(e => e.name)]
     })
-    const installSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
-    await install(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , installSpinner);
+    const nodeData = findDataBasedOnValue(menus , 'name' ,nodeAnswer.node);
+    const isNodeInstalled = await isInstalled(nodeData);
+    const actionMenus = [];
+    // the action
+    if(isNodeInstalled)actionMenus.push('Uninstall' , 'Open Terminal');
+    else actionMenus.push('Install');
+    const actionAnswer = await inquirer.prompt({
+        type: "list",
+        name: "action",
+        message: `What you want to do with ${nodeData?.name} ?`,
+        choices: actionMenus
+    })
+    
+    // choise the action using switch case
+    switch (actionAnswer?.action) {
+        case 'Install':
+            const installSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
+            await install(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , installSpinner);
+            break;
+        case 'Uninstall':
+            const uninstallSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
+            await Uninstall(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , uninstallSpinner);
+            break;
+        case 'Open Terminal':
+            try{
+                VTexec(`docker exec -it ${nodeData?.container} bash`)
+            }catch(err){
+                console.log(err.message)
+            }
+            break;
+        default:
+            process.exit(1)
+            break;
+    }
+    
 }
 
 __start__();
