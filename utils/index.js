@@ -38,7 +38,7 @@ export const checkDocker = async (spinner) => {
     if(err || output == ''){
         spinner.update({text: chalk.red("You don't have docker on your machine")})
         spinner.error();
-        return false;
+        process.exit(1)
     }
     spinner.update({text: chalk.green("We found docker !")})
     spinner.success();
