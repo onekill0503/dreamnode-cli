@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import fs from 'fs'
 import { cmd , cmdSync } from './index.js';
 import path from 'path';
+import { isInstalled } from './index.js';
 
 const createDockerFile = async (data) => {
     return await axios.get(data?.dockerfile)
@@ -27,8 +28,8 @@ const createDockerImage = async (image) => {
     return true;
 }
 
-const createDockerContainer = async (image , container) => {
-    const [output , stderr , error] = await cmdSync('docker' , ["container" , "run" , `-it` , '-d', '--name' , `${container}` , `${image}` ])
+const createDockerContainer = async (image , container , port) => {
+    const [output , stderr , error] = await cmdSync('docker' , ["container" , "run" , `-it` , '-d' , '-p' , `${port}` , '--name' , `${container}` , `${image}` ])
     if(error) return false;
     return true;
 }
@@ -68,10 +69,16 @@ export const install = async (data , spinner) => {
         const createImage = await createDockerImage(data?.image, data?.name)
         if(!createImage) throw new Error("Failed to create docker image");
         // create docker container
-        const createContainer = await createDockerContainer(data?.image, data?.container)
+        const createContainer = await createDockerContainer(data?.image, data?.container . data?.port)
         if(!createContainer) throw new Error("Failed to create docker container");
         // remove dockerFile
         await fs.unlinkSync(path.resolve(path.join(process.cwd() , 'Dockerfile')))
+        // check if node installed correctly
+        const isInstalledCorrectly = await isInstalled(data);
+        if(!isInstalledCorrectly){
+            throw new Error(`Node not installed correctly, please restart the app`);
+        }
+        // success install node
         spinner.update({text: chalk.green(`Success installing node !`)})
         spinner.success();
     }catch(error){

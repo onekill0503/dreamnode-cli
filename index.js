@@ -6,7 +6,8 @@ import { createSpinner } from 'nanospinner'
 import axios from 'axios'
 // load some utils function
 import { findDataBasedOnValue , checkDocker , isInstalled, cmdSync } from "./utils/index.js"
-import { install , Uninstall } from './utils/action.js'
+import action from './utils/action.js'
+const { Uninstall , install } = new action();
 
 // load enviroment
 config();
@@ -81,6 +82,12 @@ const __start__ = async (params) => {
                     name: 'wallet',
                     message: `What's your wallet name ?`,
                     validate(s ) {return (s == '') ? `Don't leave it blank !` : true}
+                },
+                {
+                    type: 'input',
+                    name: 'rpc',
+                    message: `What's your node rpc port (ex: 26657) ?`,
+                    default: `26657`
                 }
             ]
             // get node data + user data
