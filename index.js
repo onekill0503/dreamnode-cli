@@ -13,7 +13,6 @@ config();
 
 // function for initialization
 const __init__ = async () => {
-    
 }
 
 const __terminal__ = async (node) => {
@@ -70,8 +69,27 @@ const __start__ = async (params) => {
     // choise the action using switch case
     switch (actionAnswer?.action) {
         case 'Install':
+            const nodeQuestions = [
+                {
+                    type: 'input',
+                    name: 'nodename',
+                    message: `What's your node name ?`,
+                    validate(s ) {return (s == '') ? `Don't leave it blank !` : true}
+                },
+                {
+                    type: 'input',
+                    name: 'wallet',
+                    message: `What's your wallet name ?`,
+                    validate(s ) {return (s == '') ? `Don't leave it blank !` : true}
+                }
+            ]
+            // get node data + user data
+            const cmd = await inquirer.prompt(nodeQuestions);
+            let data = findDataBasedOnValue(menus , 'name' ,nodeAnswer.node);
+            data = {...data,...cmd}
+            
             const installSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();
-            await install(findDataBasedOnValue(menus , 'name' ,nodeAnswer.node) , installSpinner);
+            await install( data, installSpinner);
             break;
         case 'Uninstall':
             const uninstallSpinner = createSpinner(`${chalk.yellow("Installing node ...")}\n${chalk.bgBlue("Terminal Gonna be stuck, please be pantient")}`).start();

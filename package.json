@@ -1,6 +1,6 @@
 {
   "name": "dreamnode-cli",
-  "version": "1.0.0",
+  "version": "1.0.2a",
   "description": "cli tool for automated install blockchain node or validator using docker container",
   "main": "index.js",
   "type": "module",

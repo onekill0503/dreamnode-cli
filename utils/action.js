@@ -4,14 +4,14 @@ import fs from 'fs'
 import { cmd , cmdSync } from './index.js';
 import path from 'path';
 
-const createDockerFile = async (dockerFileUrl , name) => {
-    return await axios.get(dockerFileUrl)
+const createDockerFile = async (data) => {
+    return await axios.get(data?.dockerfile)
         .then(async (res) => {
             let dockerFile = res.data;
             // replace some dynamic data
-            dockerFile = dockerFile.toString().replace("[chain]" , "mainnet");
-            dockerFile = dockerFile.toString().replace("[nodename]" , "alwaysbedrean");
-            dockerFile = dockerFile.toString().replace("[wallet]" , "wallet");
+            dockerFile = dockerFile.toString().replace("[chain]" , data?.chain);
+            dockerFile = dockerFile.toString().replace("[nodename]" , data?.nodename);
+            dockerFile = dockerFile.toString().replace("[wallet]" , data?.wallet);
             let pathResolved = path.resolve(path.join(process.cwd() , 'Dockerfile'))
             await fs.writeFileSync(pathResolved , dockerFile);
             return true;
@@ -62,7 +62,7 @@ export const Uninstall = async (data , spinner) => {
 export const install = async (data , spinner) => {
     try {
         // create docker file
-        const createDocker = await createDockerFile(data?.dockerfile , data?.name);
+        const createDocker = await createDockerFile(data);
         if(!createDocker) throw new Error("Failed to create docker file");
         // create docker image
         const createImage = await createDockerImage(data?.image, data?.name)
