@@ -1,5 +1,6 @@
 import exec from 'child_process';
 import chalk from 'chalk'
+import { missingDocker } from './action.js'
 const { spawn , spawnSync } = exec;
 
 export const findDataBasedOnValue = (arr , attr , data) => {
@@ -45,7 +46,7 @@ export const checkDocker = async (spinner) => {
     if(err){
         spinner.update({text: chalk.red("You don't have docker on your machine")})
         spinner.error();
-        process.exit(1);
+        await missingDocker();
     }
     spinner.update({text: chalk.green("We found docker !")})
     spinner.success();

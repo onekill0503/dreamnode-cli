@@ -4,6 +4,12 @@ import fs from 'fs'
 import { cmdSync } from './index.js';
 import path from 'path';
 import { isInstalled } from './index.js';
+import inquirer  from 'inquirer'
+import { createSpinner } from 'nanospinner'
+
+const __stateSync__ = async (data) => {
+    console.log(`Coming soon`);
+}
 
 const createDockerFile = async (data) => {
     return await axios.get(data?.dockerfile)
@@ -83,6 +89,18 @@ export const install = async (data , spinner) => {
         if(!isInstalledCorrectly){
             throw new Error(`Node not installed correctly, please restart the app`);
         }
+
+        if(data?.node_type == `cosmos`){
+            const stateSync = await inquirer.prompt({
+                type: 'confirm',
+                message: `You want to active state sync ? (Recommended)`,
+                name: stateSync
+            });
+            if(stateSync?.stateSync){
+                await __stateSync__(data);
+            }
+        }
+
         // success install node
         spinner.update({text: chalk.green(`Success installing node !`)})
         spinner.success();
@@ -90,5 +108,40 @@ export const install = async (data , spinner) => {
         spinner.update({text: chalk.red(error.message)})
         spinner.error();
         return;
+    }
+}
+
+const InstallDockerCmd = async () => {
+    // get bash file to install docker
+    const getFile = await cmdSync(`curl` , ['fsSL' , 'https://get.docker.com' , '-o' , 'get-docker.sh']);
+    if(!getFile) return false;
+    // start to installing docker
+    const installing = await cmdSync(`sh` , ['./get-docker.sh'])
+    if(!installing) return false;
+
+    // success return true
+    return true;
+}
+
+export const missingDocker = async () => {
+    if(process.platform == 'win32'){
+        console.log(chalk.red(`Please install docker first\nDownload Docker here : https://www.docker.com/products/docker-desktop/`));
+    }else{
+        const installDocker = await inquirer.prompt({
+            type: 'confirm',
+            message: 'You want install it now ?',
+            name: `answer`
+        })
+        if(installDocker?.answer){
+            const spinner = createSpinner(chalk.yellow(`Installing docker ...`)).start();
+            const installing = await InstallDockerCmd();
+            if(!installing) {
+                spinner.update({text: chalk.red(`Failed to install docker, try to install manully`)});
+                spinner.error();
+                process.exit();
+            }
+            spinner.update({text: chalk.green(`Docker successfully installed !\nRun this program again.`)})
+        }
+        process.exit(1);
     }
 }

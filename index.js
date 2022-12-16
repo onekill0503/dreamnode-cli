@@ -7,6 +7,7 @@ import axios from 'axios'
 // load some utils function
 import { findDataBasedOnValue , checkDocker , isInstalled, cmdSync } from "./utils/index.js"
 import { Uninstall , install } from './utils/action.js'
+import { stateSync } from './utils/action/stateSync.js'
 
 // load enviroment
 config();
@@ -31,7 +32,8 @@ const __terminal__ = async (node) => {
 const __start__ = async (params) => {
     // check if user already install docker
     const spinnerGetDocker = createSpinner(chalk.yellow("Checking docker on your machine")).start();
-    if(!checkDocker(spinnerGetDocker)) return;
+    const isDockerInstalled = await checkDocker(spinnerGetDocker); 
+    if(!isDockerInstalled) return;
     const spinnerGetManifest = createSpinner(chalk.yellow("Getting manifest data ...")).start();
     const menus = await axios.get("https://raw.githubusercontent.com/onekill0503/dreamnode/main/manifest.json")
         .then(res => {
