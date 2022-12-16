@@ -87,7 +87,10 @@ const __start__ = async (params) => {
                     type: 'input',
                     name: 'rpc',
                     message: `What's your node rpc port (ex: 26657) ?`,
-                    default: `26657`
+                    default: `26657`,
+                    validate(v){
+                        return isNaN(parseInt(v)) ? "Invalid Input" : true;
+                    }
                 }
             ]
             // get node data + user data
